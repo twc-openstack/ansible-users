@@ -5,6 +5,16 @@
   when: users_create_per_user_group
   tags: ['users','configuration']
 
+# ensure that the sudo group exists
+- name: Make sudo group
+  group: name=sudo state=present
+  when: ansible_os_family == "RedHat"
+
+# ensure the sudo group can do sudo stuff
+- name: Give sudo group sudo rights on Red Hat family
+  lineinfile: "dest=/etc/sudoers.d/sudo_group line='%sudo ALL=(ALL)   NOPASSWD: ALL' state=present create=yes validate='visudo -cf %s'"
+  when: ansible_os_family == "RedHat"
+
 - name: User creation
   user: name="{{item.username}}"
         group="{{item.username if users_create_per_user_group
